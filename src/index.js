@@ -12,7 +12,9 @@ let photosLoaded = 40;
 let totalHits;
 let searchValue;
 
-form.addEventListener('submit', event => {
+form.addEventListener('submit', onSubmit);
+
+function onSubmit(event) {
   event.preventDefault();
   galleryRef.innerHTML = '';
   currentPage = 1;
@@ -21,7 +23,7 @@ form.addEventListener('submit', event => {
   fetchData(searchValue)
     .then(data => foundedImages(data))
     .then(data => makeMarkup(data.data));
-});
+}
 
 function fetchData(searchValue) {
   return axios.get(
@@ -69,9 +71,12 @@ function scrollListener() {
       );
       window.removeEventListener('scroll', scrollListener);
     }
+
     currentPage += 1;
     photosLoaded += 40;
-    fetchData(searchValue).then(data => makeMarkup(data.data));
+    fetchData(searchValue)
+      .then(data => makeMarkup(data.data))
+      .then(smoothScroll);
   }
 }
 
@@ -86,4 +91,14 @@ function foundedImages(array) {
   }
 
   return array;
+}
+
+function smoothScroll() {
+  const { height: cardHeight } =
+    galleryRef.firstElementChild.getBoundingClientRect();
+
+  window.scrollBy({
+    top: cardHeight * 2,
+    behavior: 'smooth',
+  });
 }
